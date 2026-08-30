@@ -1,6 +1,7 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
+import { buildTeamUrl, opponentFor, resolveTeam } from "../app-logic.js";
 
 const schedule = JSON.parse(await fs.readFile(new URL("../data/schedule.json", import.meta.url), "utf8"));
 
@@ -67,4 +68,15 @@ test("page loads the generated schedule and exposes the lookup controls", async 
   assert.match(html, /id="team"/);
   assert.match(html, /id="search-form"/);
   assert.match(app, /fetch\("data\/schedule\.json"\)/);
+});
+
+test("game links resolve to the opponent summary in the same division", () => {
+  const division = schedule.divisions.find(({ id }) => id === "10U_M_Champ_35");
+  const game = division.games.find(({ id }) => id === "10B-001");
+  const opponent = opponentFor(game, "SD DONS");
+  const url = buildTeamUrl(division.id, opponent);
+
+  assert.equal(opponent, "SAN CLEMENTE BLACK");
+  assert.equal(url, "?division=10U_M_Champ_35&team=SAN+CLEMENTE+BLACK");
+  assert.equal(resolveTeam(division, new URLSearchParams(url).get("team")).team, opponent);
 });

@@ -38,9 +38,12 @@ button:hover { background:#c8f226; }
 h3 { margin:0; font-family:Georgia,serif; font-size:2rem; font-weight:400; }
 .schedule-heading span { color:var(--muted); }
 .game-list { display:grid; gap:10px; }
-.game-card { display:grid; grid-template-columns:150px 1fr auto; gap:28px; align-items:center; padding:22px 24px; background:var(--paper); border-left:4px solid var(--ink); }
+.game-card { display:grid; grid-template-columns:150px 1fr auto; gap:28px; align-items:center; padding:22px 24px; color:inherit; background:var(--paper); border-left:4px solid var(--ink); text-decoration:none; transition:transform .18s ease, box-shadow .18s ease, border-color .18s ease; }
+.game-card:hover { transform:translateY(-2px); border-left-color:var(--lime); box-shadow:0 12px 28px rgba(17,36,31,.1); }
+.game-card:focus-visible { outline:3px solid #1a594c; outline-offset:3px; }
 .game-date span,.game-opponent span,.game-opponent small,.game-score small { display:block; margin-top:5px; color:var(--muted); font-size:.78rem; }
 .game-opponent strong { font-size:1.06rem; }
+.game-opponent strong::after { content:"  →"; color:#8ca500; }
 .game-score { min-width:115px; text-align:right; }
 .game-score strong { display:block; margin-top:5px; font-family:Georgia,serif; font-size:1.7rem; }
 .result { display:inline-block; padding:4px 8px; background:#e5e9e5; color:var(--ink); font-size:.68rem; font-weight:850; letter-spacing:.08em; text-transform:uppercase; }

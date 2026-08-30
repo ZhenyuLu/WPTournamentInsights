@@ -1,0 +1,21 @@
+export const normalize = (value) => value.trim().toLocaleLowerCase();
+
+export function resolveTeam(division, query) {
+  const normalizedQuery = normalize(query);
+  if (!division || !normalizedQuery) return { team: null, matches: [] };
+
+  const exactTeam = division.teams.find((team) => normalize(team) === normalizedQuery);
+  const matches = exactTeam
+    ? [exactTeam]
+    : division.teams.filter((team) => normalize(team).includes(normalizedQuery));
+  return { team: matches.length === 1 ? matches[0] : null, matches };
+}
+
+export function opponentFor(game, teamName) {
+  return normalize(game.white) === normalize(teamName) ? game.dark : game.white;
+}
+
+export function buildTeamUrl(divisionId, teamName) {
+  const params = new URLSearchParams({ division: divisionId, team: teamName });
+  return `?${params.toString()}`;
+}

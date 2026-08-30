@@ -1,3 +1,5 @@
+import { buildTeamUrl, normalize, opponentFor, resolveTeam } from "./app-logic.js";
+
 const state = { data: null };
 const $ = (selector) => document.querySelector(selector);
 
@@ -6,8 +8,10 @@ const teamInput = $("#team");
 const teamOptions = $("#team-options");
 const status = $("#load-status");
 
-const normalize = (value) => value.trim().toLocaleLowerCase();
 const formatDate = (date) => new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`));
+const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => ({
+  "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;",
+})[character]);
 
 async function loadSchedule() {
   try {
@@ -21,6 +25,7 @@ async function loadSchedule() {
       divisionSelect.append(option);
     }
     status.textContent = `${state.data.divisions.length} divisions ready`;
+    applyUrlSelection();
   } catch (error) {
     status.textContent = "Could not load the tournament data. Start the site through a local web server.";
     status.classList.add("error");
@@ -55,20 +60,22 @@ function resultFor(game, team) {
 function renderGames(event) {
   event.preventDefault();
   const division = selectedDivision();
-  const query = normalize(teamInput.value);
-  if (!division || !query) return;
-
-  const exactTeam = division.teams.find((team) => normalize(team) === query);
-  const matchingTeams = exactTeam ? [exactTeam] : division.teams.filter((team) => normalize(team).includes(query));
-  if (matchingTeams.length !== 1) {
-    status.textContent = matchingTeams.length ? `Please choose one of the ${matchingTeams.length} matching teams.` : "No matching team was found in this division.";
+  const { team, matches } = resolveTeam(division, teamInput.value);
+  if (!division || !team) {
+    status.textContent = matches.length ? `Please choose one of the ${matches.length} matching teams.` : "No matching team was found in this division.";
     status.classList.add("error");
     return;
   }
 
+  history.pushState({}, "", buildTeamUrl(division.id, team));
+  renderTeam(division, team);
+}
+
+function renderTeam(division, teamName, { scroll = true } = {}) {
   status.classList.remove("error");
   status.textContent = "Tournament data loaded from the example workbook";
-  const teamName = matchingTeams[0];
+  divisionSelect.value = division.id;
+  updateTeams();
   teamInput.value = teamName;
   const normalizedTeam = normalize(teamName);
   const games = division.games
@@ -94,20 +101,29 @@ function renderGames(event) {
 
   $("#game-list").innerHTML = games.map((game) => {
     const isWhite = normalize(game.white) === normalizedTeam;
-    const opponent = isWhite ? game.dark : game.white;
+    const opponent = opponentFor(game, teamName);
     const teamScore = isWhite ? game.whiteScore : game.darkScore;
     const opponentScore = isWhite ? game.darkScore : game.whiteScore;
     const result = resultFor(game, normalizedTeam);
     const score = teamScore === null || opponentScore === null ? "—" : `${teamScore} : ${opponentScore}`;
-    return `<article class="game-card">
+    const opponentUrl = buildTeamUrl(division.id, opponent);
+    return `<a class="game-card" href="${escapeHtml(opponentUrl)}" aria-label="View ${escapeHtml(opponent)} team summary">
       <div class="game-date"><strong>${formatDate(game.date)}</strong><span>${game.time}</span></div>
-      <div class="game-opponent"><small>${game.type || "Tournament game"}</small><strong>vs. ${opponent}</strong><span>${game.location}</span></div>
+      <div class="game-opponent"><small>${escapeHtml(game.type || "Tournament game")}</small><strong>vs. ${escapeHtml(opponent)}</strong><span>${escapeHtml(game.location)}</span></div>
       <div class="game-score"><span class="result ${result.toLowerCase()}">${result}</span><strong>${score}</strong><small>${game.id}</small></div>
-    </article>`;
+    </a>`;
   }).join("") || `<p class="empty">No games found for this team.</p>`;
 
   $("#results").hidden = false;
-  $("#results").scrollIntoView({ behavior: "smooth", block: "start" });
+  if (scroll) $("#results").scrollIntoView({ behavior: "smooth", block: "start" });
+}
+
+function applyUrlSelection() {
+  const params = new URLSearchParams(location.search);
+  const division = state.data?.divisions.find(({ id }) => id === params.get("division"));
+  const { team } = resolveTeam(division, params.get("team") ?? "");
+  if (!division || !team) return;
+  renderTeam(division, team, { scroll: false });
 }
 
 divisionSelect.addEventListener("change", updateTeams);
