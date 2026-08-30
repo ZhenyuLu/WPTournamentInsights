@@ -49,20 +49,27 @@ for (const sheet of workbook.worksheets.items.slice(1)) {
     const darkRaw = row?.[columns.dark];
     if (typeof gameId !== "string" || !whiteRaw || !darkRaw || !excelDate(row[columns.date])) continue;
 
+    const white = cleanTeam(whiteRaw);
+    const dark = cleanTeam(darkRaw);
+    if (!white || !dark) continue;
+
     const whiteScore = Number.isFinite(row[columns.whiteScore]) ? row[columns.whiteScore] : null;
     const darkScore = Number.isFinite(row[columns.darkScore]) ? row[columns.darkScore] : null;
+    const timeMinutes = excelTimeMinutes(row[columns.time]);
+    const location = String(row[columns.location] ?? "");
     games.push({
+      key: `${gameId.trim()}|${excelDate(row[columns.date])}|${timeMinutes ?? "unknown"}|${location}`,
       id: gameId.trim(),
       date: excelDate(row[columns.date]),
       time: excelTime(row[columns.time]) ?? String(row[columns.time] ?? ""),
-      timeMinutes: excelTimeMinutes(row[columns.time]),
+      timeMinutes,
       type: String(row[columns.type] ?? ""),
-      location: String(row[columns.location] ?? ""),
+      location,
       gameNumber: row[columns.gameNumber] ?? null,
-      white: cleanTeam(whiteRaw),
+      white,
       whiteRaw: String(whiteRaw).trim(),
       whiteScore,
-      dark: cleanTeam(darkRaw),
+      dark,
       darkRaw: String(darkRaw).trim(),
       darkScore,
     });

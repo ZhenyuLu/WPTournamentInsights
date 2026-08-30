@@ -1,0 +1,9 @@
+{
+  "name": "wp-tournament-insights",
+  "version": "0.1.0",
+  "private": true,
+  "type": "module",
+  "scripts": {
+    "test": "node --check app.js && node --check scripts/extract-schedule.mjs && node --check scripts/inspect-workbook.mjs && node --test"
+  }
+}
