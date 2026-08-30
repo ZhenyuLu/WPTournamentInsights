@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Find a team's results and schedule in the 2026 NJO tournament." />
+    <title>Water Polo Tournament Insights</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body>
+    <header class="hero">
+      <nav><span class="brand-mark">WP</span><span>TOURNAMENT INSIGHTS</span></nav>
+      <div class="hero-copy">
+        <p class="eyebrow">2026 NATIONAL JUNIOR OLYMPICS · SESSION 2</p>
+        <h1>Your team’s tournament,<br /><em>at a glance.</em></h1>
+        <p class="intro">Choose a division and team to see every matchup, score, venue, and result—without hunting through a spreadsheet.</p>
+      </div>
+    </header>
+
+    <main>
+      <section class="search-panel" aria-labelledby="search-title">
+        <div class="panel-heading">
+          <span>01</span>
+          <div><p class="eyebrow">FIND A TEAM</p><h2 id="search-title">Tournament lookup</h2></div>
+        </div>
+        <form id="search-form">
+          <label>Division<select id="division" required><option value="">Select a division</option></select></label>
+          <label>Team<input id="team" list="team-options" placeholder="Start typing a team name" autocomplete="off" required /><datalist id="team-options"></datalist></label>
+          <button type="submit">View performance <span aria-hidden="true">→</span></button>
+        </form>
+        <p id="load-status" class="status" role="status">Loading tournament data…</p>
+      </section>
+
+      <section id="results" class="results" hidden aria-live="polite">
+        <div class="results-heading">
+          <div><p class="eyebrow">TEAM PERFORMANCE</p><h2 id="team-title"></h2><p id="division-title" class="muted"></p></div>
+          <div class="record" aria-label="Team record"><span id="record-value">0–0–0</span><small>W – L – T</small></div>
+        </div>
+        <div id="summary-cards" class="summary-cards"></div>
+        <div class="schedule-heading"><h3>Games</h3><span id="game-count"></span></div>
+        <div id="game-list" class="game-list"></div>
+      </section>
+    </main>
+
+    <footer><span>WPTI / 2026</span><span>Source: official tournament workbook</span></footer>
+    <script type="module" src="app.js"></script>
+  </body>
+</html>
