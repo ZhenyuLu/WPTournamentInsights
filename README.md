@@ -12,7 +12,7 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000` and choose a division and team.
 
-Use `download.html` to paste a shared tournament workbook URL. OneDrive and SharePoint links are converted to direct-download URLs; other HTTPS links open unchanged. The browser downloads directly from the source host, and the app does not store the link.
+Use `download.html` to name a tournament and paste its shared workbook URL. OneDrive and SharePoint links are converted to direct-download URLs; other HTTPS links open unchanged. Downloaded tournaments are saved in the browser and appear in the main tournament selector. The bundled workbook is named **2026 Junior Olympics Session 2** and is ready to review; newly downloaded workbooks remain marked as processing required until automatic Excel parsing is added.
 
 ## Test
 

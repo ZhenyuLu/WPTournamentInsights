@@ -15,7 +15,7 @@ export function opponentFor(game, teamName) {
   return normalize(game.white) === normalize(teamName) ? game.dark : game.white;
 }
 
-export function buildTeamUrl(divisionId, teamName) {
-  const params = new URLSearchParams({ division: divisionId, team: teamName });
+export function buildTeamUrl(tournamentId, divisionId, teamName) {
+  const params = new URLSearchParams({ tournament: tournamentId, division: divisionId, team: teamName });
   return `?${params.toString()}`;
 }

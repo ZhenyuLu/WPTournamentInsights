@@ -3,6 +3,7 @@ import fs from "node:fs/promises";
 import test from "node:test";
 import { buildTeamUrl, opponentFor, resolveTeam } from "../app-logic.js";
 import { buildDownloadUrl } from "../download-logic.js";
+import { createTournament, DEFAULT_TOURNAMENT, parseStoredTournaments, upsertTournament } from "../tournament-registry.js";
 
 const schedule = JSON.parse(await fs.readFile(new URL("../data/schedule.json", import.meta.url), "utf8"));
 
@@ -66,20 +67,37 @@ test("page loads the generated schedule and exposes the lookup controls", async 
   const app = await fs.readFile(new URL("../app.js", import.meta.url), "utf8");
 
   assert.match(html, /id="division"/);
+  assert.match(html, /id="tournament"/);
   assert.match(html, /id="team"/);
   assert.match(html, /id="search-form"/);
-  assert.match(app, /fetch\("data\/schedule\.json"\)/);
+  assert.match(app, /fetch\(tournament\.dataUrl\)/);
 });
 
 test("game links resolve to the opponent summary in the same division", () => {
   const division = schedule.divisions.find(({ id }) => id === "10U_M_Champ_35");
   const game = division.games.find(({ id }) => id === "10B-001");
   const opponent = opponentFor(game, "SD DONS");
-  const url = buildTeamUrl(division.id, opponent);
+  const url = buildTeamUrl(DEFAULT_TOURNAMENT.id, division.id, opponent);
 
   assert.equal(opponent, "SAN CLEMENTE BLACK");
-  assert.equal(url, "?division=10U_M_Champ_35&team=SAN+CLEMENTE+BLACK");
+  assert.equal(url, "?tournament=2026-junior-olympics-session-2&division=10U_M_Champ_35&team=SAN+CLEMENTE+BLACK");
   assert.equal(resolveTeam(division, new URLSearchParams(url).get("team")).team, opponent);
+});
+
+test("the bundled workbook has the requested tournament name", () => {
+  assert.equal(DEFAULT_TOURNAMENT.name, "2026 Junior Olympics Session 2");
+  assert.equal(DEFAULT_TOURNAMENT.dataUrl, "data/schedule.json");
+  assert.equal(DEFAULT_TOURNAMENT.status, "ready");
+});
+
+test("named tournament downloads can be stored and updated", () => {
+  const tournament = createTournament("  Summer   Invitational  ", "https://example.com/results.xlsx");
+  assert.equal(tournament.name, "Summer Invitational");
+  assert.equal(tournament.status, "downloaded");
+  assert.equal(upsertTournament([], tournament)[0].id, tournament.id);
+  assert.deepEqual(parseStoredTournaments(JSON.stringify([tournament])), [tournament]);
+  assert.deepEqual(parseStoredTournaments("not-json"), []);
+  assert.throws(() => createTournament(" ", "https://example.com/results.xlsx"), /Enter the tournament name/);
 });
 
 test("OneDrive and SharePoint links are converted to direct downloads", () => {

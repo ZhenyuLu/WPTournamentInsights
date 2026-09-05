@@ -16,7 +16,7 @@
       <div class="download-hero-copy">
         <p class="eyebrow">TOURNAMENT DATA</p>
         <h1>Bring the latest<br /><em>results aboard.</em></h1>
-        <p class="intro">Paste a shared tournament workbook link. We’ll prepare a direct download so you can retrieve the latest results.</p>
+        <p class="intro">Name the tournament and paste its shared workbook link. We’ll download the results and add the tournament to your lookup list.</p>
       </div>
     </header>
 
@@ -27,18 +27,22 @@
           <div><p class="eyebrow">DOWNLOAD WORKBOOK</p><h2 id="download-title">Tournament result link</h2></div>
         </div>
         <form id="download-form" class="download-form">
+          <label>Tournament name
+            <input id="tournament-name" type="text" placeholder="2026 Junior Olympics Session 2" maxlength="100" autocomplete="off" required />
+          </label>
           <label>Shared HTTPS link
             <input id="tournament-link" type="url" inputmode="url" placeholder="https://1drv.ms/x/…" autocomplete="url" required />
           </label>
           <button type="submit">Download result <span aria-hidden="true">↓</span></button>
         </form>
         <p id="download-status" class="status" role="status">OneDrive and SharePoint shared links are converted to direct-download links.</p>
+        <a id="review-tournaments" class="text-link" href="index.html" hidden>Choose a tournament to review →</a>
       </section>
 
       <section class="download-notes" aria-label="How downloading works">
         <article><strong>01</strong><h3>Copy the share link</h3><p>In OneDrive, choose Share, copy the workbook link, and paste it above.</p></article>
-        <article><strong>02</strong><h3>Download securely</h3><p>The link opens directly from its original host. The app does not upload or store your link.</p></article>
-        <article><strong>03</strong><h3>Prepare for import</h3><p>This MVP downloads the workbook. Automatic in-app parsing can use the same entry point next.</p></article>
+        <article><strong>02</strong><h3>Download securely</h3><p>The link opens directly from its original host and is stored only in this browser—not uploaded by the app.</p></article>
+        <article><strong>03</strong><h3>Choose the tournament</h3><p>The tournament is saved in this browser and appears in the main lookup selector.</p></article>
       </section>
     </main>
 

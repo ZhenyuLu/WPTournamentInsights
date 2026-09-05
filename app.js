@@ -1,8 +1,10 @@
 import { buildTeamUrl, normalize, opponentFor, resolveTeam } from "./app-logic.js";
+import { DEFAULT_TOURNAMENT, parseStoredTournaments, TOURNAMENT_STORAGE_KEY } from "./tournament-registry.js";
 
-const state = { data: null };
+const state = { data: null, tournaments: [] };
 const $ = (selector) => document.querySelector(selector);
 
+const tournamentSelect = $("#tournament");
 const divisionSelect = $("#division");
 const teamInput = $("#team");
 const teamOptions = $("#team-options");
@@ -13,9 +15,39 @@ const escapeHtml = (value) => String(value).replace(/[&<>"']/g, (character) => (
   "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#039;",
 })[character]);
 
-async function loadSchedule() {
+function populateTournaments() {
+  state.tournaments = [DEFAULT_TOURNAMENT, ...parseStoredTournaments(localStorage.getItem(TOURNAMENT_STORAGE_KEY))];
+  tournamentSelect.replaceChildren();
+  for (const tournament of state.tournaments) {
+    const option = document.createElement("option");
+    option.value = tournament.id;
+    option.textContent = tournament.status === "ready" ? tournament.name : `${tournament.name} — processing required`;
+    tournamentSelect.append(option);
+  }
+}
+
+function clearSchedule() {
+  state.data = null;
+  divisionSelect.innerHTML = '<option value="">Select a division</option>';
+  teamOptions.replaceChildren();
+  teamInput.value = "";
+  $("#results").hidden = true;
+}
+
+async function loadTournament({ applyUrl = false } = {}) {
+  const tournament = selectedTournament();
+  clearSchedule();
+  if (!tournament?.dataUrl) {
+    status.textContent = `${tournament?.name ?? "This tournament"} has been downloaded, but its workbook still needs to be processed before review.`;
+    status.classList.remove("error");
+    status.classList.add("pending");
+    return;
+  }
+
   try {
-    const response = await fetch("data/schedule.json");
+    status.classList.remove("error", "pending");
+    status.textContent = `Loading ${tournament.name}…`;
+    const response = await fetch(tournament.dataUrl);
     if (!response.ok) throw new Error(`Data request failed (${response.status})`);
     state.data = await response.json();
     for (const division of state.data.divisions) {
@@ -24,13 +56,17 @@ async function loadSchedule() {
       option.textContent = division.label;
       divisionSelect.append(option);
     }
-    status.textContent = `${state.data.divisions.length} divisions ready`;
-    applyUrlSelection();
+    status.textContent = `${tournament.name} · ${state.data.divisions.length} divisions ready`;
+    if (applyUrl) applyUrlSelection();
   } catch (error) {
     status.textContent = "Could not load the tournament data. Start the site through a local web server.";
     status.classList.add("error");
     console.error(error);
   }
+}
+
+function selectedTournament() {
+  return state.tournaments.find(({ id }) => id === tournamentSelect.value);
 }
 
 function selectedDivision() {
@@ -67,13 +103,13 @@ function renderGames(event) {
     return;
   }
 
-  history.pushState({}, "", buildTeamUrl(division.id, team));
+  history.pushState({}, "", buildTeamUrl(tournamentSelect.value, division.id, team));
   renderTeam(division, team);
 }
 
 function renderTeam(division, teamName, { scroll = true } = {}) {
   status.classList.remove("error");
-  status.textContent = "Tournament data loaded from the example workbook";
+  status.textContent = `${selectedTournament().name} tournament data loaded`;
   divisionSelect.value = division.id;
   updateTeams();
   teamInput.value = teamName;
@@ -106,7 +142,7 @@ function renderTeam(division, teamName, { scroll = true } = {}) {
     const opponentScore = isWhite ? game.darkScore : game.whiteScore;
     const result = resultFor(game, normalizedTeam);
     const score = teamScore === null || opponentScore === null ? "—" : `${teamScore} : ${opponentScore}`;
-    const opponentUrl = buildTeamUrl(division.id, opponent);
+    const opponentUrl = buildTeamUrl(tournamentSelect.value, division.id, opponent);
     return `<a class="game-card" href="${escapeHtml(opponentUrl)}" aria-label="View ${escapeHtml(opponent)} team summary">
       <div class="game-date"><strong>${formatDate(game.date)}</strong><span>${game.time}</span></div>
       <div class="game-opponent"><small>${escapeHtml(game.type || "Tournament game")}</small><strong>vs. ${escapeHtml(opponent)}</strong><span>${escapeHtml(game.location)}</span></div>
@@ -126,6 +162,12 @@ function applyUrlSelection() {
   renderTeam(division, team, { scroll: false });
 }
 
+tournamentSelect.addEventListener("change", () => loadTournament());
 divisionSelect.addEventListener("change", updateTeams);
 $("#search-form").addEventListener("submit", renderGames);
-loadSchedule();
+
+populateTournaments();
+const initialParams = new URLSearchParams(location.search);
+const requestedTournament = state.tournaments.find(({ id }) => id === initialParams.get("tournament"));
+tournamentSelect.value = requestedTournament?.id ?? DEFAULT_TOURNAMENT.id;
+loadTournament({ applyUrl: true });

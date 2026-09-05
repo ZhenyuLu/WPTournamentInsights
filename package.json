@@ -4,6 +4,6 @@
   "private": true,
   "type": "module",
   "scripts": {
-    "test": "node --check app.js && node --check app-logic.js && node --check download.js && node --check download-logic.js && node --check scripts/extract-schedule.mjs && node --check scripts/inspect-workbook.mjs && node --test"
+    "test": "node --check app.js && node --check app-logic.js && node --check download.js && node --check download-logic.js && node --check tournament-registry.js && node --check scripts/extract-schedule.mjs && node --check scripts/inspect-workbook.mjs && node --test"
   }
 }

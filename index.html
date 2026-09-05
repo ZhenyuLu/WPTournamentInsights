@@ -26,7 +26,8 @@
           <span>01</span>
           <div><p class="eyebrow">FIND A TEAM</p><h2 id="search-title">Tournament lookup</h2></div>
         </div>
-        <form id="search-form">
+        <form id="search-form" class="lookup-form">
+          <label>Tournament<select id="tournament" required></select></label>
           <label>Division<select id="division" required><option value="">Select a division</option></select></label>
           <label>Team<input id="team" list="team-options" placeholder="Start typing a team name" autocomplete="off" required /><datalist id="team-options"></datalist></label>
           <button type="submit">View performance <span aria-hidden="true">→</span></button>
