@@ -2,6 +2,7 @@ import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
 import { buildTeamUrl, opponentFor, resolveTeam } from "../app-logic.js";
+import { buildDownloadUrl } from "../download-logic.js";
 
 const schedule = JSON.parse(await fs.readFile(new URL("../data/schedule.json", import.meta.url), "utf8"));
 
@@ -79,4 +80,25 @@ test("game links resolve to the opponent summary in the same division", () => {
   assert.equal(opponent, "SAN CLEMENTE BLACK");
   assert.equal(url, "?division=10U_M_Champ_35&team=SAN+CLEMENTE+BLACK");
   assert.equal(resolveTeam(division, new URLSearchParams(url).get("team")).team, opponent);
+});
+
+test("OneDrive and SharePoint links are converted to direct downloads", () => {
+  assert.deepEqual(buildDownloadUrl("https://1drv.ms/x/s!example?e=abc"), {
+    url: "https://1drv.ms/x/s!example?e=abc&download=1",
+    isOneDrive: true,
+  });
+  assert.deepEqual(buildDownloadUrl("https://example.sharepoint.com/:x:/s/results?web=1"), {
+    url: "https://example.sharepoint.com/:x:/s/results?web=1&download=1",
+    isOneDrive: true,
+  });
+});
+
+test("download links must be complete HTTPS URLs", () => {
+  assert.throws(() => buildDownloadUrl(""), /Enter a tournament result link/);
+  assert.throws(() => buildDownloadUrl("example.com/results.xlsx"), /beginning with https/);
+  assert.throws(() => buildDownloadUrl("http://example.com/results.xlsx"), /must use HTTPS/);
+  assert.deepEqual(buildDownloadUrl("https://example.com/results.xlsx"), {
+    url: "https://example.com/results.xlsx",
+    isOneDrive: false,
+  });
 });

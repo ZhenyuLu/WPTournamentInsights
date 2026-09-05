@@ -12,6 +12,8 @@ python3 -m http.server 8000
 
 Open `http://localhost:8000` and choose a division and team.
 
+Use `download.html` to paste a shared tournament workbook URL. OneDrive and SharePoint links are converted to direct-download URLs; other HTTPS links open unchanged. The browser downloads directly from the source host, and the app does not store the link.
+
 ## Test
 
 Run the syntax checks and data-integrity tests with:

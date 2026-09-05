@@ -3,7 +3,11 @@
 body { margin:0; color:var(--ink); background:var(--cream); font-family:Inter, ui-sans-serif, system-ui, -apple-system, sans-serif; }
 .hero { min-height:520px; padding:28px clamp(24px,6vw,88px) 80px; color:white; background:linear-gradient(120deg,rgba(7,31,25,.92),rgba(7,31,25,.58)),radial-gradient(circle at 80% 25%,#267f72 0,transparent 40%),#0c3a31; position:relative; overflow:hidden; }
 .hero::after { content:""; position:absolute; width:340px; height:340px; border:56px solid rgba(217,255,67,.18); border-radius:50%; right:-80px; bottom:-180px; }
-nav { display:flex; align-items:center; gap:12px; font-size:.75rem; font-weight:800; letter-spacing:.18em; }
+.site-nav { display:flex; align-items:center; justify-content:space-between; gap:24px; font-size:.75rem; font-weight:800; letter-spacing:.14em; }
+.brand { display:flex; align-items:center; gap:12px; color:inherit; text-decoration:none; }
+.nav-links { display:flex; align-items:center; gap:24px; }
+.nav-links a { color:#d7e3de; text-decoration:none; letter-spacing:.04em; }
+.nav-links a:hover,.nav-links a.active { color:var(--lime); }
 .brand-mark { width:42px; height:42px; display:grid; place-items:center; border-radius:50%; color:var(--ink); background:var(--lime); letter-spacing:-.08em; }
 .hero-copy { max-width:760px; margin-top:95px; position:relative; z-index:1; }
 .eyebrow { margin:0 0 12px; font-size:.72rem; font-weight:850; letter-spacing:.18em; }
@@ -21,6 +25,7 @@ select,input { width:100%; min-height:58px; padding:0 16px; color:var(--ink); ba
 select:focus,input:focus { border-color:#1a594c; box-shadow:0 0 0 3px rgba(26,89,76,.12); }
 button { min-height:58px; padding:0 24px; border:0; color:var(--ink); background:var(--lime); font-weight:850; cursor:pointer; white-space:nowrap; }
 button:hover { background:#c8f226; }
+button:disabled { cursor:wait; opacity:.68; }
 .status { margin:16px 0 0; color:var(--muted); font-size:.82rem; }
 .status.error { color:#a23320; }
 .results { margin-top:72px; scroll-margin-top:24px; }
@@ -49,4 +54,14 @@ h3 { margin:0; font-family:Georgia,serif; font-size:2rem; font-weight:400; }
 .result { display:inline-block; padding:4px 8px; background:#e5e9e5; color:var(--ink); font-size:.68rem; font-weight:850; letter-spacing:.08em; text-transform:uppercase; }
 .result.win { background:var(--lime); }.result.loss { color:white; background:var(--orange); }.result.tie { background:#f4cb63; }
 footer { display:flex; justify-content:space-between; padding:24px clamp(24px,6vw,88px); color:#93a49e; background:var(--ink); font-size:.7rem; letter-spacing:.1em; text-transform:uppercase; }
-@media (max-width:760px) { .hero { min-height:470px; }.hero-copy { margin-top:80px; } form { grid-template-columns:1fr; }.summary-cards { grid-template-columns:1fr 1fr; }.summary-cards article:nth-child(2) { border-right:0; }.results-heading { align-items:start; }.game-card { grid-template-columns:1fr auto; gap:14px; }.game-date { grid-column:1/-1; display:flex; justify-content:space-between; border-bottom:1px solid #e1e4df; padding-bottom:10px; } }
+.compact-hero { min-height:470px; padding:28px clamp(24px,6vw,88px) 96px; color:white; background:linear-gradient(120deg,rgba(7,31,25,.95),rgba(7,31,25,.68)),radial-gradient(circle at 82% 32%,#267f72 0,transparent 36%),#0c3a31; }
+.download-hero-copy { max-width:800px; margin-top:72px; }
+.download-main { margin-top:-56px; }
+.download-panel { padding:clamp(28px,5vw,56px); background:var(--paper); box-shadow:0 20px 60px rgba(17,36,31,.12); }
+.download-form { grid-template-columns:1fr auto; }
+.download-notes { display:grid; grid-template-columns:repeat(3,1fr); gap:1px; margin-top:48px; background:var(--line); border:1px solid var(--line); }
+.download-notes article { padding:32px; background:var(--cream); }
+.download-notes article>strong { color:var(--orange); font-family:Georgia,serif; font-size:1.5rem; font-style:italic; }
+.download-notes h3 { margin:20px 0 10px; font-size:1.45rem; }
+.download-notes p { margin:0; color:var(--muted); line-height:1.65; }
+@media (max-width:760px) { .hero { min-height:470px; }.hero-copy { margin-top:80px; }.site-nav { align-items:flex-start; }.brand>span:last-child { display:none; }.nav-links { gap:14px; font-size:.65rem; } form,.download-form { grid-template-columns:1fr; }.download-notes { grid-template-columns:1fr; }.summary-cards { grid-template-columns:1fr 1fr; }.summary-cards article:nth-child(2) { border-right:0; }.results-heading { align-items:start; }.game-card { grid-template-columns:1fr auto; gap:14px; }.game-date { grid-column:1/-1; display:flex; justify-content:space-between; border-bottom:1px solid #e1e4df; padding-bottom:10px; } }

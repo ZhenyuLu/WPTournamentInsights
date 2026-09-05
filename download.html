@@ -1,0 +1,48 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <meta name="description" content="Download a water polo tournament result workbook from a shared link." />
+    <title>Load Tournament Results · Water Polo Tournament Insights</title>
+    <link rel="stylesheet" href="styles.css" />
+  </head>
+  <body class="download-page">
+    <header class="compact-hero">
+      <nav class="site-nav">
+        <a class="brand" href="index.html"><span class="brand-mark">WP</span><span>TOURNAMENT INSIGHTS</span></a>
+        <div class="nav-links"><a href="index.html">Team lookup</a><a class="active" href="download.html">Load tournament</a></div>
+      </nav>
+      <div class="download-hero-copy">
+        <p class="eyebrow">TOURNAMENT DATA</p>
+        <h1>Bring the latest<br /><em>results aboard.</em></h1>
+        <p class="intro">Paste a shared tournament workbook link. We’ll prepare a direct download so you can retrieve the latest results.</p>
+      </div>
+    </header>
+
+    <main class="download-main">
+      <section class="download-panel" aria-labelledby="download-title">
+        <div class="panel-heading">
+          <span>02</span>
+          <div><p class="eyebrow">DOWNLOAD WORKBOOK</p><h2 id="download-title">Tournament result link</h2></div>
+        </div>
+        <form id="download-form" class="download-form">
+          <label>Shared HTTPS link
+            <input id="tournament-link" type="url" inputmode="url" placeholder="https://1drv.ms/x/…" autocomplete="url" required />
+          </label>
+          <button type="submit">Download result <span aria-hidden="true">↓</span></button>
+        </form>
+        <p id="download-status" class="status" role="status">OneDrive and SharePoint shared links are converted to direct-download links.</p>
+      </section>
+
+      <section class="download-notes" aria-label="How downloading works">
+        <article><strong>01</strong><h3>Copy the share link</h3><p>In OneDrive, choose Share, copy the workbook link, and paste it above.</p></article>
+        <article><strong>02</strong><h3>Download securely</h3><p>The link opens directly from its original host. The app does not upload or store your link.</p></article>
+        <article><strong>03</strong><h3>Prepare for import</h3><p>This MVP downloads the workbook. Automatic in-app parsing can use the same entry point next.</p></article>
+      </section>
+    </main>
+
+    <footer><span>WPTI / 2026</span><span>Your link stays in your browser</span></footer>
+    <script type="module" src="download.js"></script>
+  </body>
+</html>
