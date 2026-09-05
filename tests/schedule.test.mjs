@@ -104,10 +104,21 @@ test("OneDrive and SharePoint links are converted to direct downloads", () => {
   assert.deepEqual(buildDownloadUrl("https://1drv.ms/x/s!example?e=abc"), {
     url: "https://1drv.ms/x/s!example?e=abc&download=1",
     isOneDrive: true,
+    isGoogleSheets: false,
   });
   assert.deepEqual(buildDownloadUrl("https://example.sharepoint.com/:x:/s/results?web=1"), {
     url: "https://example.sharepoint.com/:x:/s/results?web=1&download=1",
     isOneDrive: true,
+    isGoogleSheets: false,
+  });
+});
+
+test("Google Sheets editor links are converted to Excel exports", () => {
+  const sharedUrl = "https://docs.google.com/spreadsheets/d/1AkX3vwOU9CIc3cymacG2F-uXz-_Gi_A8yR40dEbDpMQ/edit?gid=271825513#gid=271825513";
+  assert.deepEqual(buildDownloadUrl(sharedUrl), {
+    url: "https://docs.google.com/spreadsheets/d/1AkX3vwOU9CIc3cymacG2F-uXz-_Gi_A8yR40dEbDpMQ/export?format=xlsx",
+    isOneDrive: false,
+    isGoogleSheets: true,
   });
 });
 
@@ -118,6 +129,7 @@ test("download links must be complete HTTPS URLs", () => {
   assert.deepEqual(buildDownloadUrl("https://example.com/results.xlsx"), {
     url: "https://example.com/results.xlsx",
     isOneDrive: false,
+    isGoogleSheets: false,
   });
 });
 

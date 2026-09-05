@@ -12,7 +12,7 @@ python3 server.py
 
 Open `http://localhost:8000` and choose a division and team.
 
-Use `download.html` to name a tournament and paste its shared workbook URL. The local server downloads validated `.xlsx` files directly into the project folder, without overwriting existing files. Downloaded tournaments are saved in the browser and appear in the main tournament selector. The bundled workbook is named **2026 Junior Olympics Session 2** and is ready to review; newly downloaded workbooks remain marked as processing required until automatic Excel parsing is added.
+Use `download.html` to name a tournament and paste its shared workbook URL. Google Sheets editor links are converted to Excel export URLs, and OneDrive or SharePoint links are converted to direct downloads. The local server saves validated `.xlsx` files directly into the project folder without overwriting existing files. Downloaded tournaments are saved in the browser and appear in the main tournament selector. The bundled workbook is named **2026 Junior Olympics Session 2** and is ready to review; newly downloaded workbooks remain marked as processing required until automatic Excel parsing is added.
 
 ## Test
 
