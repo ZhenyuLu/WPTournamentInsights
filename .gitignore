@@ -1,2 +1,4 @@
 .DS_Store
 **/.DS_Store
+/*.xlsx
+!/2026_NJO_Public_Sched_S2.xlsx

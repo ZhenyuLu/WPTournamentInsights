@@ -4,15 +4,15 @@ A static MVP that turns the example NJO Excel workbook into a searchable team-pe
 
 ## Run locally
 
-Serve the project directory with any static HTTP server, then open the displayed URL. For example:
+Start the local app server:
 
 ```sh
-python3 -m http.server 8000
+python3 server.py
 ```
 
 Open `http://localhost:8000` and choose a division and team.
 
-Use `download.html` to name a tournament and paste its shared workbook URL. OneDrive and SharePoint links are converted to direct-download URLs; other HTTPS links open unchanged. Downloaded tournaments are saved in the browser and appear in the main tournament selector. The bundled workbook is named **2026 Junior Olympics Session 2** and is ready to review; newly downloaded workbooks remain marked as processing required until automatic Excel parsing is added.
+Use `download.html` to name a tournament and paste its shared workbook URL. The local server downloads validated `.xlsx` files directly into the project folder, without overwriting existing files. Downloaded tournaments are saved in the browser and appear in the main tournament selector. The bundled workbook is named **2026 Junior Olympics Session 2** and is ready to review; newly downloaded workbooks remain marked as processing required until automatic Excel parsing is added.
 
 ## Test
 

@@ -120,3 +120,10 @@ test("download links must be complete HTTPS URLs", () => {
     isOneDrive: false,
   });
 });
+
+test("download page saves through the local project API", async () => {
+  const script = await fs.readFile(new URL("../download.js", import.meta.url), "utf8");
+  assert.match(script, /fetch\("\/api\/tournaments\/download"/);
+  assert.match(script, /Download complete:/);
+  assert.doesNotMatch(script, /downloadLink\.click/);
+});
