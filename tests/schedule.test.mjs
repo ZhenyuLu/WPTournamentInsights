@@ -3,7 +3,7 @@ import fs from "node:fs/promises";
 import test from "node:test";
 import { buildTeamUrl, opponentFor, resolveTeam } from "../app-logic.js";
 import { buildDownloadUrl } from "../download-logic.js";
-import { createTournament, DEFAULT_TOURNAMENT, parseStoredTournaments, upsertTournament } from "../tournament-registry.js";
+import { createTournament, DEFAULT_TOURNAMENT, markTournamentReady, parseStoredTournaments, upsertTournament } from "../tournament-registry.js";
 
 const schedule = JSON.parse(await fs.readFile(new URL("../data/schedule.json", import.meta.url), "utf8"));
 
@@ -71,6 +71,7 @@ test("page loads the generated schedule and exposes the lookup controls", async 
   assert.match(html, /id="team"/);
   assert.match(html, /id="search-form"/);
   assert.match(app, /fetch\(tournament\.dataUrl\)/);
+  assert.match(app, /\/api\/tournaments\/process/);
 });
 
 test("game links resolve to the opponent summary in the same division", () => {
@@ -98,6 +99,18 @@ test("named tournament downloads can be stored and updated", () => {
   assert.deepEqual(parseStoredTournaments(JSON.stringify([tournament])), [tournament]);
   assert.deepEqual(parseStoredTournaments("not-json"), []);
   assert.throws(() => createTournament(" ", "https://example.com/results.xlsx"), /Enter the tournament name/);
+});
+
+test("processed tournament downloads are immediately ready for review", () => {
+  const downloaded = createTournament("Summer Invitational", "https://example.com/results.xlsx");
+  const ready = markTournamentReady(downloaded, {
+    filename: "Summer_Invitational.xlsx",
+    dataUrl: "data/tournaments/Summer_Invitational.json",
+  });
+  assert.equal(ready.status, "ready");
+  assert.equal(ready.localFilename, "Summer_Invitational.xlsx");
+  assert.equal(ready.dataUrl, "data/tournaments/Summer_Invitational.json");
+  assert.throws(() => markTournamentReady(downloaded, {}), /processed tournament data is incomplete/);
 });
 
 test("OneDrive and SharePoint links are converted to direct downloads", () => {
@@ -136,6 +149,6 @@ test("download links must be complete HTTPS URLs", () => {
 test("download page saves through the local project API", async () => {
   const script = await fs.readFile(new URL("../download.js", import.meta.url), "utf8");
   assert.match(script, /fetch\("\/api\/tournaments\/download"/);
-  assert.match(script, /Download complete:/);
+  assert.match(script, /Download and processing complete:/);
   assert.doesNotMatch(script, /downloadLink\.click/);
 });

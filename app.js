@@ -1,5 +1,5 @@
 import { buildTeamUrl, normalize, opponentFor, resolveTeam } from "./app-logic.js";
-import { DEFAULT_TOURNAMENT, parseStoredTournaments, TOURNAMENT_STORAGE_KEY } from "./tournament-registry.js";
+import { DEFAULT_TOURNAMENT, markTournamentReady, parseStoredTournaments, TOURNAMENT_STORAGE_KEY, upsertTournament } from "./tournament-registry.js";
 
 const state = { data: null, tournaments: [] };
 const $ = (selector) => document.querySelector(selector);
@@ -35,13 +35,35 @@ function clearSchedule() {
 }
 
 async function loadTournament({ applyUrl = false } = {}) {
-  const tournament = selectedTournament();
+  let tournament = selectedTournament();
   clearSchedule();
   if (!tournament?.dataUrl) {
-    status.textContent = `${tournament?.name ?? "This tournament"} has been downloaded, but its workbook still needs to be processed before review.`;
-    status.classList.remove("error");
-    status.classList.add("pending");
-    return;
+    if (!tournament?.localFilename) {
+      status.textContent = `${tournament?.name ?? "This tournament"} needs to be downloaded again so it can be processed.`;
+      status.classList.add("pending");
+      return;
+    }
+    try {
+      status.classList.remove("error");
+      status.classList.add("pending");
+      status.textContent = `Processing ${tournament.localFilename}…`;
+      const response = await fetch("/api/tournaments/process", {
+        method: "POST", headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ filename: tournament.localFilename }),
+      });
+      const payload = await response.json();
+      if (!response.ok) throw new Error(payload.error || "The workbook could not be processed.");
+      tournament = markTournamentReady(tournament, payload);
+      const stored = parseStoredTournaments(localStorage.getItem(TOURNAMENT_STORAGE_KEY));
+      localStorage.setItem(TOURNAMENT_STORAGE_KEY, JSON.stringify(upsertTournament(stored, tournament)));
+      state.tournaments = state.tournaments.map((item) => item.id === tournament.id ? tournament : item);
+      tournamentSelect.selectedOptions[0].textContent = tournament.name;
+    } catch (error) {
+      status.textContent = error.message;
+      status.classList.remove("pending");
+      status.classList.add("error");
+      return;
+    }
   }
 
   try {

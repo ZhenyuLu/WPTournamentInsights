@@ -12,7 +12,7 @@ python3 server.py
 
 Open `http://localhost:8000` and choose a division and team.
 
-Use `download.html` to name a tournament and paste its shared workbook URL. Google Sheets editor links are converted to Excel export URLs, and OneDrive or SharePoint links are converted to direct downloads. The local server saves validated `.xlsx` files directly into the project folder without overwriting existing files. Downloaded tournaments are saved in the browser and appear in the main tournament selector. The bundled workbook is named **2026 Junior Olympics Session 2** and is ready to review; newly downloaded workbooks remain marked as processing required until automatic Excel parsing is added.
+Use `download.html` to name a tournament and paste its shared workbook URL. Google Sheets editor links are converted to Excel export URLs, and OneDrive or SharePoint links are converted to direct downloads. The local server saves validated `.xlsx` files directly into the project folder without overwriting existing files, extracts their divisions, teams, and games into app-ready JSON, and marks them ready in the main tournament selector. Older downloads that were saved before processing was added are processed automatically when selected.
 
 ## Test
 
@@ -24,4 +24,4 @@ npm test
 
 ## Refresh the data
 
-The browser reads `data/schedule.json`, generated from `2026_NJO_Public_Sched_S2.xlsx` by `scripts/extract-schedule.mjs`. The extraction step uses the Codex bundled spreadsheet runtime. The UI is deliberately isolated from this import step so a future OneDrive adapter can fetch the shared workbook and produce the same JSON shape.
+The bundled tournament reads `data/schedule.json`, generated from `2026_NJO_Public_Sched_S2.xlsx` by `scripts/extract-schedule.mjs`. Shared-link downloads are processed by the dependency-free local parser in `xlsx_processor.py` and saved under `data/tournaments/` at runtime.

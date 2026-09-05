@@ -39,6 +39,11 @@ export function createTournament(name, sourceUrl) {
   };
 }
 
+export function markTournamentReady(tournament, download) {
+  if (!download?.filename || !download?.dataUrl) throw new Error("The processed tournament data is incomplete.");
+  return { ...tournament, localFilename: download.filename, dataUrl: download.dataUrl, status: "ready" };
+}
+
 export function upsertTournament(tournaments, tournament) {
   return [...tournaments.filter(({ id }) => id !== tournament.id), tournament]
     .sort((a, b) => a.name.localeCompare(b.name));

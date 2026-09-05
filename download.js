@@ -1,5 +1,5 @@
 import { buildDownloadUrl } from "./download-logic.js";
-import { createTournament, parseStoredTournaments, TOURNAMENT_STORAGE_KEY, upsertTournament } from "./tournament-registry.js";
+import { createTournament, markTournamentReady, parseStoredTournaments, TOURNAMENT_STORAGE_KEY, upsertTournament } from "./tournament-registry.js";
 
 const form = document.querySelector("#download-form");
 const nameInput = document.querySelector("#tournament-name");
@@ -15,7 +15,7 @@ form.addEventListener("submit", async (event) => {
     const result = buildDownloadUrl(linkInput.value);
     submit.disabled = true;
     status.classList.remove("error");
-    status.textContent = "Downloading the tournament workbook to the project folder…";
+    status.textContent = "Downloading and processing the tournament workbook…";
 
     const response = await fetch("/api/tournaments/download", {
       method: "POST",
@@ -25,13 +25,12 @@ form.addEventListener("submit", async (event) => {
     const payload = await response.json();
     if (!response.ok) throw new Error(payload.error || "The workbook could not be downloaded.");
 
-    const tournament = createTournament(nameInput.value, result.url);
-    tournament.localFilename = payload.filename;
+    const tournament = markTournamentReady(createTournament(nameInput.value, result.url), payload);
     const stored = parseStoredTournaments(localStorage.getItem(TOURNAMENT_STORAGE_KEY));
     localStorage.setItem(TOURNAMENT_STORAGE_KEY, JSON.stringify(upsertTournament(stored, tournament)));
 
     status.classList.remove("error");
-    status.textContent = `Download complete: ${payload.filename} was saved to the project folder and ${tournament.name} was added.`;
+    status.textContent = `Download and processing complete: ${payload.filename} was saved, with ${payload.divisionCount} divisions and ${payload.gameCount} games ready to review.`;
     reviewLink.href = `index.html?tournament=${encodeURIComponent(tournament.id)}`;
     reviewLink.hidden = false;
   } catch (error) {

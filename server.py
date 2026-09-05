@@ -16,6 +16,8 @@ from urllib.error import HTTPError, URLError
 from urllib.parse import urlparse
 from urllib.request import HTTPRedirectHandler, Request, build_opener
 
+from xlsx_processor import process_workbook
+
 PROJECT_ROOT = Path(__file__).resolve().parent
 MAX_REQUEST_BYTES = 16 * 1024
 MAX_WORKBOOK_BYTES = 50 * 1024 * 1024
@@ -93,6 +95,17 @@ def download_workbook(source_url: str, tournament_name: str) -> Path:
             temporary_path.unlink()
 
 
+def processing_response(destination: Path) -> dict:
+    data_path, schedule = process_workbook(destination, PROJECT_ROOT / "data" / "tournaments")
+    return {
+        "filename": destination.name,
+        "dataUrl": data_path.relative_to(PROJECT_ROOT).as_posix(),
+        "divisionCount": len(schedule["divisions"]),
+        "gameCount": sum(len(division["games"]) for division in schedule["divisions"]),
+        "message": "Download and processing complete.",
+    }
+
+
 class AppHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(PROJECT_ROOT), **kwargs)
@@ -106,7 +119,7 @@ class AppHandler(SimpleHTTPRequestHandler):
         self.wfile.write(encoded)
 
     def do_POST(self) -> None:
-        if self.path != "/api/tournaments/download":
+        if self.path not in {"/api/tournaments/download", "/api/tournaments/process"}:
             self.send_json(404, {"error": "Not found."})
             return
 
@@ -115,10 +128,18 @@ class AppHandler(SimpleHTTPRequestHandler):
             if length <= 0 or length > MAX_REQUEST_BYTES:
                 raise ValueError("Invalid download request.")
             payload = json.loads(self.rfile.read(length))
-            tournament_name = str(payload.get("name", "")).strip()
-            source_url = str(payload.get("url", "")).strip()
-            destination = download_workbook(source_url, tournament_name)
-            self.send_json(201, {"filename": destination.name, "message": "Download complete."})
+            if self.path == "/api/tournaments/download":
+                tournament_name = str(payload.get("name", "")).strip()
+                source_url = str(payload.get("url", "")).strip()
+                destination = download_workbook(source_url, tournament_name)
+            else:
+                filename = str(payload.get("filename", "")).strip()
+                if Path(filename).name != filename or not filename.lower().endswith(".xlsx"):
+                    raise ValueError("Invalid workbook filename.")
+                destination = PROJECT_ROOT / filename
+                if not destination.is_file():
+                    raise ValueError("The downloaded workbook could not be found in the project folder.")
+            self.send_json(201, processing_response(destination))
         except (ValueError, json.JSONDecodeError) as error:
             self.send_json(400, {"error": str(error)})
         except (HTTPError, URLError, TimeoutError) as error:
