@@ -1,4 +1,4 @@
-import { buildTeamUrl, normalize, opponentFor, resolveTeam } from "./app-logic.js";
+import { buildTeamUrl, formatScore, normalize, opponentFor, resolveTeam } from "./app-logic.js";
 import { DEFAULT_TOURNAMENT, markTournamentReady, parseStoredTournaments, TOURNAMENT_STORAGE_KEY, upsertTournament } from "./tournament-registry.js";
 
 const state = { data: null, tournaments: [] };
@@ -157,9 +157,9 @@ function renderTeam(division, teamName, { scroll = true } = {}) {
   $("#game-count").textContent = `${games.length} game${games.length === 1 ? "" : "s"}`;
   $("#summary-cards").innerHTML = [
     ["Games played", completed.length],
-    ["Goals for", goalsFor],
-    ["Goals against", goalsAgainst],
-    ["Goal difference", `${goalsFor - goalsAgainst > 0 ? "+" : ""}${goalsFor - goalsAgainst}`],
+    ["Goals for", formatScore(goalsFor)],
+    ["Goals against", formatScore(goalsAgainst)],
+    ["Goal difference", formatScore(goalsFor - goalsAgainst, { signed: true })],
   ].map(([label, value]) => `<article><strong>${value}</strong><span>${label}</span></article>`).join("");
 
   $("#game-list").innerHTML = games.map((game) => {
@@ -168,7 +168,7 @@ function renderTeam(division, teamName, { scroll = true } = {}) {
     const teamScore = isWhite ? game.whiteScore : game.darkScore;
     const opponentScore = isWhite ? game.darkScore : game.whiteScore;
     const result = resultFor(game, normalizedTeam);
-    const score = teamScore === null || opponentScore === null ? "—" : `${teamScore} : ${opponentScore}`;
+    const score = teamScore === null || opponentScore === null ? "—" : `${formatScore(teamScore)} : ${formatScore(opponentScore)}`;
     const opponentUrl = buildTeamUrl(tournamentSelect.value, division.id, opponent);
     return `<a class="game-card" href="${escapeHtml(opponentUrl)}" aria-label="View ${escapeHtml(opponent)} team summary">
       <div class="game-date"><strong>${formatDate(game.date)}</strong><span>${game.time}</span></div>

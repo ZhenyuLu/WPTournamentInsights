@@ -1,11 +1,19 @@
 import assert from "node:assert/strict";
 import fs from "node:fs/promises";
 import test from "node:test";
-import { buildTeamUrl, opponentFor, resolveTeam } from "../app-logic.js";
+import { buildTeamUrl, formatScore, opponentFor, resolveTeam } from "../app-logic.js";
 import { buildDownloadUrl } from "../download-logic.js";
 import { createTournament, DEFAULT_TOURNAMENT, markTournamentReady, parseStoredTournaments, upsertTournament } from "../tournament-registry.js";
 
 const schedule = JSON.parse(await fs.readFile(new URL("../data/schedule.json", import.meta.url), "utf8"));
+
+test("scores are displayed with at most one decimal place", () => {
+  assert.equal(formatScore(58.00000000000001), "58");
+  assert.equal(formatScore(13.26), "13.3");
+  assert.equal(formatScore(-1.04), "-1");
+  assert.equal(formatScore(1.04, { signed: true }), "+1");
+  assert.equal(formatScore(-0), "0");
+});
 
 test("schedule contains all expected division tabs", () => {
   assert.equal(schedule.divisions.length, 13);
