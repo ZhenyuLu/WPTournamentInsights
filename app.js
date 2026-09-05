@@ -7,7 +7,6 @@ const $ = (selector) => document.querySelector(selector);
 const tournamentSelect = $("#tournament");
 const divisionSelect = $("#division");
 const teamInput = $("#team");
-const teamOptions = $("#team-options");
 const status = $("#load-status");
 
 const formatDate = (date) => new Intl.DateTimeFormat("en-US", { weekday: "short", month: "short", day: "numeric" }).format(new Date(`${date}T12:00:00`));
@@ -29,8 +28,8 @@ function populateTournaments() {
 function clearSchedule() {
   state.data = null;
   divisionSelect.innerHTML = '<option value="">Select a division</option>';
-  teamOptions.replaceChildren();
-  teamInput.value = "";
+  teamInput.innerHTML = '<option value="">Select a division first</option>';
+  teamInput.disabled = true;
   $("#results").hidden = true;
 }
 
@@ -96,13 +95,19 @@ function selectedDivision() {
 }
 
 function updateTeams() {
-  teamOptions.replaceChildren();
-  teamInput.value = "";
-  for (const team of selectedDivision()?.teams ?? []) {
+  const teams = selectedDivision()?.teams ?? [];
+  teamInput.replaceChildren();
+  const placeholder = document.createElement("option");
+  placeholder.value = "";
+  placeholder.textContent = teams.length ? "Select a team" : "Select a division first";
+  teamInput.append(placeholder);
+  for (const team of teams) {
     const option = document.createElement("option");
     option.value = team;
-    teamOptions.append(option);
+    option.textContent = team;
+    teamInput.append(option);
   }
+  teamInput.disabled = teams.length === 0;
 }
 
 function resultFor(game, team) {

@@ -110,6 +110,10 @@ class AppHandler(SimpleHTTPRequestHandler):
     def __init__(self, *args, **kwargs):
         super().__init__(*args, directory=str(PROJECT_ROOT), **kwargs)
 
+    def end_headers(self) -> None:
+        self.send_header("Cache-Control", "no-store")
+        super().end_headers()
+
     def send_json(self, status: int, payload: dict) -> None:
         encoded = json.dumps(payload).encode("utf-8")
         self.send_response(status)

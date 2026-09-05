@@ -69,6 +69,8 @@ test("page loads the generated schedule and exposes the lookup controls", async 
   assert.match(html, /id="division"/);
   assert.match(html, /id="tournament"/);
   assert.match(html, /id="team"/);
+  assert.match(html, /<select id="team"/);
+  assert.doesNotMatch(html, /<datalist/);
   assert.match(html, /id="search-form"/);
   assert.match(app, /fetch\(tournament\.dataUrl\)/);
   assert.match(app, /\/api\/tournaments\/process/);

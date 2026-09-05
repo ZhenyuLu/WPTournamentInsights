@@ -5,11 +5,19 @@ import unittest
 from pathlib import Path
 from unittest.mock import patch
 
-from server import available_path, safe_workbook_name, validate_remote_url
+from server import AppHandler, available_path, safe_workbook_name, validate_remote_url
 from xlsx_processor import parse_workbook, process_workbook
 
 
 class ServerHelpersTest(unittest.TestCase):
+    def test_local_server_disables_browser_caching(self):
+        headers = []
+        handler = object.__new__(AppHandler)
+        handler.send_header = lambda name, value: headers.append((name, value))
+        with patch("http.server.SimpleHTTPRequestHandler.end_headers"):
+            handler.end_headers()
+        self.assertIn(("Cache-Control", "no-store"), headers)
+
     def test_safe_workbook_name(self):
         self.assertEqual(safe_workbook_name("2026 KAP7 International"), "2026_KAP7_International.xlsx")
         self.assertEqual(safe_workbook_name("  Summer / Finals  "), "Summer_Finals.xlsx")
